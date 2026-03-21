@@ -4,6 +4,7 @@ import json
 
 from groq import Groq
 from dotenv import load_dotenv
+from availableFunctions import availableFunctions
 
 load_dotenv()
 client = Groq(
@@ -11,7 +12,7 @@ client = Groq(
 )
 
 with open("functionsSchema.json") as f:
-    data = json.load(f)
+    toolSchema = json.load(f)
 
 # At the moment this array will reset ever time the program run's again. and hence no actual context is stored but during runtime this can be changed so that the array appends the current giving prompt to the messageContextArr.
 # Another feat can be added such that to give a fix length to the messageConetextArr and pop the first message when the length increases and append the most recent one to ensure consistency.
@@ -31,7 +32,8 @@ messageContextArr.append(
     }
 )
 
-SystemPrompt = "You are a helpful coding assistant who only knows how to code in python"
+SystemPrompt = "You are a helpful coding assistant that only knows how to code in python " \
+f" These are the availabe tools you have this is the following schema of the tools  {toolSchema} You have to return tool calls based on that specified schema"
 
 chat_completion = client.chat.completions.create(
     # messages should be assigend to messageContextArr later to store context.
