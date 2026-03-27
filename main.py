@@ -5,6 +5,7 @@ import json
 from groq import Groq
 from dotenv import load_dotenv
 from functions.run_functions import run_tool_calls
+from prompts import controllerPrompt,toolCallerSystemPrompt
 
 load_dotenv()
 client = Groq(
@@ -29,38 +30,47 @@ messageContextArr.append(
     }
 )
 
-SystemPrompt = """You are a coding assistant that helps users create, edit, and run code files on their local machine.
-
-When a user asks you to:
-- "write a function", "create a function", "make a script" → use write_files_content to create a file
-- "run", "execute", "test" something → use run_files
-- "show me", "what's in", "read" a file → use get_files_content
-- "list", "show files", "what files" → use get_files_info
-
-Always infer intent:
-- If the user says "write a function to X", create a Python file implementing that function.
-- If no filename is mentioned, use a sensible default.
-- Use . as the working directory unless the user specifies otherwise.
-
-Never ask clarifying questions. Always attempt the most reasonable interpretation and act."""
-
-
-chat_completion = client.chat.completions.create(
-    messages=[ 
+# Step 1: Controller breaks down the user request into steps
+controllerChatCompletion = client.chat.completions.create(
+    messages=[
         {
             "role": "system",
-            "content": SystemPrompt
+            "content": controllerPrompt
         },
         {
             "role": "user",
             "content": UserPrompt
         }
     ],
-    tools=toolSchema,
-    tool_choice="auto",
     model="llama-3.1-8b-instant",
 )
-message = chat_completion.choices[0].message
+controllerMessage = controllerChatCompletion.choices[0].message
+controllerSteps = controllerMessage.content
 
-if message.tool_calls:
-    results = run_tool_calls(message.tool_calls)
+print("Controller Steps:")
+print(controllerSteps)
+print("\n" + "="*50 + "\n")
+
+# Step 2: Tool caller takes the steps and makes tool calls
+toolCallerChatCompletion = client.chat.completions.create(
+    messages=[
+        {
+            "role": "system",
+            "content": toolCallerSystemPrompt
+        },
+        {
+            "role": "user",
+            "content": f"Execute the following steps:\n{controllerSteps}"
+        }
+    ],
+    tools=toolSchema,
+    tool_choice="auto",
+    model="moonshotai/kimi-k2-instruct",
+)
+
+tool_calls = toolCallerChatCompletion.choices[0].message.tool_calls
+
+if tool_calls:
+    results = run_tool_calls(tool_calls)
+    print("Tool Call Results:")
+    print(results)
