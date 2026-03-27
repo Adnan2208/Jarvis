@@ -65,7 +65,7 @@ toolCallerChatCompletion = client.chat.completions.create(
     ],
     tools=toolSchema,
     tool_choice="auto",
-    model="llama-3.1-8b-instant",
+    model="llama-3.3-70b-versatile",
 )
 
 tool_calls = toolCallerChatCompletion.choices[0].message.tool_calls
