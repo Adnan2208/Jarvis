@@ -19,6 +19,4 @@ Steps:
 Always be specific about filenames and what each step should accomplish.
 Never ask clarifying questions. Always provide the most reasonable interpretation."""
 
-
-
-toolCallerSystemPrompt ="""You are a tool-calling agent. Call the appropriate tools to complete the given steps. Use '.' as the working directory unless specified."""
+toolCallerSystemPrompt = """You are a tool-calling agent. Call the appropriate tools to complete the given steps. Use '.' as the working directory unless specified."""

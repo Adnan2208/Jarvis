@@ -8,3 +8,12 @@ dependencies = [
     "groq>=1.0.0",
     "python-dotenv>=1.2.1",
 ]
+
+[project.scripts]
+AiCode = "main:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+
+[tool.setuptools]
+py-modules = ["main"]
