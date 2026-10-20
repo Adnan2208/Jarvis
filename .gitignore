@@ -10,3 +10,7 @@ wheels/
 # Virtual environments
 .venv
 todo.md
+
+# Personal Dev environment test files : 
+/src/roughTest.py
+/src/notes.txt

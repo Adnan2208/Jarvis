@@ -1,0 +1,1 @@
+currentModel = "qwen/qwen3.8-27b"

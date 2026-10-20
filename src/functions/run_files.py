@@ -1,5 +1,6 @@
 import os
 import subprocess
+import sys
 
 
 def run_files(working_dir, file_path, timeout=25):
@@ -21,7 +22,7 @@ def run_files(working_dir, file_path, timeout=25):
 
     try:
         result = subprocess.run(
-            ["python3", abs_file_path],
+            [sys.executable, abs_file_path],
             cwd=abs_working_dir,
             capture_output=True,
             text=True,

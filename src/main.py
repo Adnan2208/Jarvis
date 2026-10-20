@@ -1,29 +1,30 @@
 import os
 import sys
 import json
+from importlib.resources import files
 
 from groq import Groq
 from dotenv import load_dotenv
 from functions.run_functions import run_tool_calls
 from prompts import controllerPrompt,toolCallerSystemPrompt
+from models import currentModel
 
-# Add root directory to sys.path
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 def main():
+    if len(sys.argv) < 2:
+        print("Please enter a prompt")
+        sys.exit(1)
+
+    UserPrompt = str(sys.argv[1])
+
+    load_dotenv("../Ai-agent/.env")
     load_dotenv()
     client = Groq(
         api_key=os.environ.get("GROQ_API_KEY"),
     )
 
-    with open("functionsSchema.json") as f:
+    with files("functions").joinpath("functionsSchema.json").open(encoding="utf-8") as f:
         toolSchema = json.load(f)
-
-    if(len(sys.argv)) < 2:
-        print("Please enter a prompt")
-        sys.exit(1)
-    else :
-        UserPrompt =  str(sys.argv[1])
 
     """ # MessageContextArr should store the context of the conversation.
     messageContextArr = []
@@ -46,7 +47,7 @@ def main():
                 "content": UserPrompt
             }
         ],
-        model="llama-3.1-8b-instant",
+        model=currentModel,
     )
     controllerMessage = controllerChatCompletion.choices[0].message
     controllerSteps = controllerMessage.content
@@ -69,7 +70,7 @@ def main():
         ],
         tools=toolSchema,
         tool_choice="auto",
-        model="llama-3.3-70b-versatile",
+        model=currentModel,
     )
 
     tool_calls = toolCallerChatCompletion.choices[0].message.tool_calls
